@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+/nexopos/.env
+/nexopos/vendor/
+/nexopos/node_modules/
+/nexopos/storage/
+/nexopos/bootstrap/cache/
+/nexopos/public/build/
+/vendor/
+/node_modules/
+/coverage/
+.DS_Store
+Thumbs.db

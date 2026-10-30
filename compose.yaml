@@ -1,0 +1,55 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.4}
+        NEXOPOS_VERSION: ${NEXOPOS_VERSION:-6.3.0}
+    env_file: .env
+    environment:
+      APP_NAME: "La Factoría — Gestión"
+      APP_URL: http://localhost:8080
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-factoria}
+      DB_USERNAME: ${DB_USERNAME:-factoria}
+      DB_PASSWORD: ${DB_PASSWORD:-change-this-local-password}
+      TUUPOS_MODE: ${TUUPOS_MODE:-mock}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - nexopos_storage:/var/www/html/storage
+      - nexopos_public:/var/www/html/public
+
+  web:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - nexopos_public:/var/www/html/public:ro
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-factoria}
+      MYSQL_USER: ${DB_USERNAME:-factoria}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change-this-local-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-this-root-password}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-change-this-root-password}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  nexopos_storage:
+  nexopos_public:

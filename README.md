@@ -27,11 +27,15 @@ Inicio de desarrollo. La base propuesta fija NexoPOS `v6.3.0` (GPL-3.0), con Doc
 
 La primera construcción descarga NexoPOS `6.3.0` desde Composer. Las versiones del motor y PHP quedan declaradas en `.env.example`. Las credenciales TUU permanecen vacías y el modo es `mock`.
 
+Si `APP_KEY` está vacío, el contenedor genera una clave privada, la conserva en el volumen `nexopos_storage` y la exporta al proceso PHP. Recrear el contenedor conserva la clave; al respaldar los datos hay que incluir ese volumen. Una clave explícita en `.env` tiene prioridad.
+
 ## Desarrollo y pruebas
 
 ```powershell
 php tests/run.php
 ```
+
+En Linux o CI, `sh tests/entrypoint.sh` verifica que la clave llegue al proceso PHP, persista entre arranques y respete una clave explícita. El arranque completo de Docker sigue pendiente de validación.
 
 El conjunto de pruebas es puro PHP y no requiere instalar dependencias. Comprueba invariantes del modelo de titularidad y el comportamiento simulado de pagos. No prueba conexión con TUU ni reemplaza pruebas de integración dentro de una instalación real de NexoPOS.
 
